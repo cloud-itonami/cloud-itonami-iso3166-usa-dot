@@ -9,4 +9,5 @@
  :itonami.blueprint/governor :market-entry-compliance-governor
  :itonami.blueprint/robotics false
  :itonami.blueprint/required-technologies [:identity :forms :dmn :bpmn :audit-ledger]
- :itonami.blueprint/status :public-oss}
+ :itonami.blueprint/status :public-oss
+ :itonami.blueprint/organization {:ooyake-id "gov.usa.dot" :official-url "https://transportation.gov" :head-role "Secretary of Transportation" :contact-page "https://www.wikidata.org/wiki/Q852211"}}
