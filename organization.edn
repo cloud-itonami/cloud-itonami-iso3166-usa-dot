@@ -1,12 +1,12 @@
 ;; Real-world organization location / contact.
 ;; :head-role is institutional title only — no personal names.
 {:ooyake-id "gov.usa.dot"
-  :official-url "https://transportation.gov"
+  :official-url "https://www.transportation.gov/"
   :name-en "United States Department of Transportation"
   :wikidata "Q852211"
   :head-role "Secretary of Transportation"
   :head-role-note "institutional office title only; personal names of current office-holders are intentionally NOT stored"
-  :contact-page "https://www.wikidata.org/wiki/Q852211"
-  :sourced-from "com-etzhayyim-ooyake gov-units (verbatim where present)"
-  :hq {:line-en "Washington, D.C." :country "usa" :kind "headquarters" :provenance "https://www.wikidata.org/wiki/Q852211" :last-verified "2026-06-03" :sourcing "authoritative"}
+  :contact-page "https://www.transportation.gov/contact-us"
+  :sourced-from "official public contact page"
+  :hq {:line-en "1200 New Jersey Avenue SE, Washington, DC 20590" :line-local "1200 New Jersey Avenue SE, Washington, DC 20590" :postal-code "20590" :phone "1-202-366-4000" :kind "headquarters" :provenance "https://www.transportation.gov/contact-us" :last-verified "2026-07-19" :sourcing "official-site-public" :country "usa"}
 }
