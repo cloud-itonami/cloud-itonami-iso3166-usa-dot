@@ -1,0 +1,1331 @@
+(ns statute.facts
+  "Agency-level compliance catalog for **USA-DOT** (United States Department of
+  Transportation) -- the spec-basis behind this leaf's blueprint claim that an
+  independent operator can run a DOT procurement / Buy America compliance
+  navigation service.
+
+  Scope. This is the DOT-specific layer only. Government-wide U.S. federal
+  statutes live in the country coordinator `cloud-itonami-iso3166-usa`'s
+  `statute.facts` and are NOT duplicated here; the two catalogs compose, keyed
+  `USA-DOT` -> `USA`. Sibling agency leaves (`USA-FCC`, `USA-EPA`, `USA-VA`,
+  `USA-SBA`) hold their own chapters. Two government-wide bodies of rule ARE
+  carried here anyway -- the FAR (48 CFR chapter 1) and OMB's grants guidance
+  (2 CFR subtitle A) -- because every finding below is a statement about how
+  DOT departs from them, and a contrast needs both sides present to be checked.
+
+  Provenance. Every entry cites the official eCFR (Electronic Code of Federal
+  Regulations, GPO/Office of the Federal Register) address for the smallest
+  stable unit that was independently confirmed. Nothing here is fabricated:
+  each `:statute/verified-label` is the byte-exact `label_description` returned
+  by the eCFR versioner structure API on `:statute/verified-at`, and each
+  string in `:statute/verified-quotes` is a byte-exact span of the section text
+  returned by the eCFR versioner full-text API. `tools/verify_citations.cljs`
+  re-fetches both and fails if either drifts.
+
+  Why the citation and the verification URL differ. `:statute/url` is the
+  canonical human address a person should open. It is deliberately NOT the URL
+  that was machine-verified: fetching www.ecfr.gov from an automated client can
+  return HTTP 200 with a `Federal Register :: Request Access` interstitial
+  rather than the regulation, so a status-code check against it would report
+  success while proving nothing. We verify through the documented machine API
+  and record both. The human URLs here were constructed from the same verified
+  node paths rather than fetched -- do not `curl` one and treat a 200 as
+  confirmation, because it is not.
+
+  THE TRAP THIS CATALOG EXISTS TO PIN DOWN. **DOT is not one buyer under one
+  rulebook. It is a department whose acquisition regulation excludes its
+  largest acquisition shop, and whose most famous requirement -- Buy America --
+  is not a procurement rule at all.** The sibling FCC leaf found an agency with
+  no FAR supplement; DOT has one, which makes the error here subtler and more
+  expensive, because reading it feels like finishing. Four consequences, all
+  recorded as data (a quoted span or a checked negative) rather than as prose,
+  so that a reorganisation of the CFR cannot leave a stale claim sitting here
+  looking verified:
+
+  1. **The FAR, the TAR and the TAM do not apply to the FAA.** Not as a matter
+     of interpretation -- 48 CFR 1201.104(d) says so in those words, citing
+     49 U.S.C. 40110(d). The FAA buys under its own Acquisition Management
+     System, which is not published in the CFR at all, so for the department's
+     largest acquisition organisation there is no CFR text whose mastery helps.
+     The Maritime Administration is separately permitted by 1201.104(c) to
+     depart from both. A service that teaches `the TAR` has taught the rules
+     for part of DOT and explicitly not for the part most clients ask about.
+
+  2. **`Buy America` and `Buy American` are different regimes, and the FAR
+     contains only the second.** Scanning every node label in title 48 for
+     `Buy America` as a whole word returns nothing, while `Buy American`
+     returns dozens. That is not a spelling curiosity. Buy American (48 CFR
+     part 25) governs the United States buying for itself and works through a
+     price preference a foreign offer can overcome. Buy America (49 CFR part
+     661, 23 CFR 635.410) governs a grantee spending federal assistance --
+     49 CFR 661.1 says `federally assisted procurements` -- and 661.5 admits no
+     price comparison at all. Different purchaser, different mechanism, one
+     letter apart.
+
+  3. **`Buy America` is not even one rule inside DOT.** FHWA allows a de
+     minimis (one-tenth of one percent or $2,500, whichever is greater) and a
+     25 percent alternate-bid path at 23 CFR 635.410(b); FTA's 49 CFR 661.5
+     allows neither. Both are quoted below. An adviser who learned the transit
+     rule and applied it to a highway project will over-restrict a bid, and the
+     reverse will under-restrict one. A third regime, the Build America, Buy
+     America preference at 2 CFR part 184, sits on top of both.
+
+  4. **DOT never supplemented FAR part 25.** There is no part 1225 anywhere in
+     48 CFR chapter 12 -- the numbering runs 1224 straight to 1227. That is
+     recorded as a checked negative rather than an observation, because it is
+     the structural confirmation of points 2 and 3: the department's entire
+     domestic-preference apparatus lives on the grants side, where the buyer is
+     someone else, and none of it is in its acquisition regulation.
+
+  Two further hazards are carried by the entries rather than by `absences`,
+  because in both cases the evidence is a heading that exists:
+
+  * **A CFR title is a subject, not an owner.** In title 49, chapters IV and
+    XII are the Coast Guard and TSA -- Department of Homeland Security -- while
+    VII is Amtrak (a corporation), VIII the NTSB and X the Surface
+    Transportation Board (independent). Title 46 repeats the pattern. Their own
+    labels say so, which is why they are positive entries under the `:not-dot`
+    hat. `It is in the Transportation title` is not evidence that DOT owns it.
+
+  * **Part numbers are not addresses here.** 49 CFR part 661 is FTA's Buy
+    America rule; 23 CFR part 661 is the Tribal Transportation Facility Bridge
+    Program. 48 CFR part 1201 is the TAR's regulations-system part; 2 CFR part
+    1201 is DOT's adoption of the uniform grant requirements. Both collisions
+    are inside this one department, and in each pair the two parts sit on
+    opposite sides of the money flow.
+
+  What is genuinely DOT-only, and is the operator's actual product. Three
+  things a client cannot get from a generic federal-contracts adviser: (a)
+  knowing which regime a given dollar is under -- contract, grant, or an
+  operating administration outside both -- before any compliance work begins;
+  (b) the domestic-content stack, where three overlapping rules with different
+  thresholds and different waiver routes can apply to one project at once, and
+  where a State may lawfully be stricter (49 CFR 661.21(a)) but may not prefer
+  local suppliers at all (661.21(b)(3)); and (c) the DBE programme (49 CFR part
+  26), which binds recipients rather than DOT, is distinct from both the
+  airport-concessions programme in part 23 and the procurement-side
+  small-business programme in 48 CFR part 1219, and whose certifications do not
+  transfer between them. That first question -- which side of the money is this
+  -- is the highest-value thing in this catalog, and it is why the FAR and OMB
+  entries are here at all."
+  (:require [clojure.string :as str]))
+
+;; ---------------------------------------------------------------------------
+;; Verification endpoints.
+;;
+;; Pinned to a dated snapshot rather than `current` so that a run is
+;; reproducible: `current` would silently change the thing being compared
+;; against, which is the failure mode where a gate keeps passing because both
+;; sides moved together.
+;;
+;; Six titles, which is itself the finding. A department whose rules could be
+;; read in one place would need one.
+
+(def ecfr-structure-api
+  "CFR title -> eCFR versioner *structure* endpoint. Yields the node tree whose
+  `label_description` fields the positive half of the gate compares against."
+  {2  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+   14 "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-14.json"
+   23 "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-23.json"
+   46 "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-46.json"
+   48 "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+   49 "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"})
+
+(def ecfr-full-text-api
+  "CFR title -> eCFR versioner *full-text* endpoint. A quote check appends
+  `?part=<part>&section=<section>`. Declared per title rather than built from a
+  prefix so that an entry citing a title nobody declared an endpoint for is a
+  could-not-answer instead of a fetch against a URL nobody checked. Same
+  snapshot date as the structure endpoints above, on purpose: comparing against
+  `current` would let both sides move together and keep passing."
+  {2  "https://www.ecfr.gov/api/versioner/v1/full/2026-08-18/title-2.xml"
+   23 "https://www.ecfr.gov/api/versioner/v1/full/2026-08-18/title-23.xml"
+   48 "https://www.ecfr.gov/api/versioner/v1/full/2026-08-18/title-48.xml"
+   49 "https://www.ecfr.gov/api/versioner/v1/full/2026-08-18/title-49.xml"})
+
+;; ---------------------------------------------------------------------------
+;; The catalog.
+;;
+;; `USA-DOT` is an agency-level key (parent `USA`), matching blueprint.edn's
+;; `:itonami.blueprint/iso3166`.
+;;
+;; `:statute/cfr-node` is the path from the CFR title down to the cited node,
+;; as [type identifier] pairs. The live gate walks the eCFR structure tree by
+;; this path -- it does not string-match the URL, because hierarchical
+;; identifiers nest as substrings of one another (part `1` is a prefix of part
+;; `1201`, part `25` of part `2501`, and section `661.1` of `661.11`). Walking
+;; explicit [type identifier] steps cannot pass by accident. No entry in this
+;; catalog needs a wildcard step: every cited node has a citable identifier.
+;;
+;; `:statute/hat` says which DOT role the entry belongs to. Conflating these is
+;; the failure this catalog exists to prevent, so it is a required field:
+;;   :acquirer        -- DOT buying for itself, under the FAR as supplemented
+;;                       by the TAR (48 CFR chapter 12)
+;;   :grantor         -- DOT awarding financial assistance, where the
+;;                       procurement being regulated belongs to the recipient
+;;   :regulator       -- DOT writing operating rules for an industry, including
+;;                       the conditions attached to assisted projects
+;;   :excluded        -- inside DOT, outside the acquisition regulation that
+;;                       bears its name (FAA; and see MARAD at 1201.104(c))
+;;   :not-dot         -- in a transportation CFR title, owned by another
+;;                       department or by nobody
+;;   :far-baseline    -- 48 CFR chapter 1: what governs before a supplement
+;;   :grants-baseline -- 2 CFR subtitle A: OMB's government-wide grants rules
+
+(def catalog
+  "USA-DOT -> ordered vector of verified regulatory anchors."
+  {"USA-DOT"
+   [
+    {:statute/id            :far/root
+     :statute/topic         #{:procurement}
+     :statute/hat           :far-baseline
+     :statute/title         "48 CFR Chapter 1 -- Federal Acquisition Regulation"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "1"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-1"
+     :statute/verified-label "Federal Acquisition Regulation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "What governs selling to any federal agency before a supplement is
+      consulted. DOT does publish a supplement (chapter 12), so unlike an
+      agency with none, `read the FAR` is a starting point here, not the whole
+      answer -- except where an operating administration is carved out of both."}
+
+    {:statute/id            :far/foreign-acquisition
+     :statute/topic         #{:domestic-preference}
+     :statute/hat           :far-baseline
+     :statute/title         "48 CFR Part 25 -- Foreign Acquisition"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "1"] ["subchapter" "D"] ["part" "25"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-1/subchapter-D/part-25"
+     :statute/verified-label "Foreign Acquisition"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The FAR's domestic-preference part. Note the name: a reader searching
+      the FAR for a part called `Buy American` finds nothing, because the Buy
+      American rules are subparts inside a part called Foreign Acquisition.
+      This part governs the government buying for itself. It is NOT what
+      governs a transit agency spending a DOT grant -- see `absences`."}
+
+    {:statute/id            :far/buy-american-supplies
+     :statute/topic         #{:domestic-preference}
+     :statute/hat           :far-baseline
+     :statute/title         "48 CFR Subpart 25.1 -- Buy American--Supplies"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "1"] ["subchapter" "D"] ["part" "25"] ["subpart" "25.1"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-1/subchapter-D/part-25/subpart-25.1"
+     :statute/verified-label "Buy American—Supplies"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Buy American for supplies, operating through an evaluation-factor
+      price preference: a foreign offer can still win if it is cheap enough.
+      Hold this next to 49 CFR 661.5(a), which admits no price comparison at
+      all. Same country, same policy goal, incompatible mechanics."}
+
+    {:statute/id            :far/buy-american-construction
+     :statute/topic         #{:domestic-preference}
+     :statute/hat           :far-baseline
+     :statute/title         "48 CFR Subpart 25.2 -- Buy American--Construction Materials"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "1"] ["subchapter" "D"] ["part" "25"] ["subpart" "25.2"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-1/subchapter-D/part-25/subpart-25.2"
+     :statute/verified-label "Buy American—Construction Materials"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The construction-materials half. Cited here because DOT-funded work is
+      overwhelmingly construction, so this is the FAR subpart a reader is most
+      likely to reach for by analogy -- and most likely to misapply, since a
+      federally assisted highway or transit project is not a federal
+      construction contract."}
+
+    {:statute/id            :far/debarment-subpart
+     :statute/topic         #{:exclusion}
+     :statute/hat           :far-baseline
+     :statute/title         "48 CFR Subpart 9.4 -- Debarment, Suspension, and Ineligibility"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "1"] ["subchapter" "B"] ["part" "9"] ["subpart" "9.4"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-1/subchapter-B/part-9/subpart-9.4"
+     :statute/verified-label "Debarment, Suspension, and Ineligibility"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Procurement-side exclusion. There is a second, separate regime for
+      financial assistance (2 CFR part 180, adopted by DOT at 2 CFR part 1200).
+      Checking one and reporting `not excluded` is wrong in both directions."}
+
+    {:statute/id            :tar/chapter
+     :statute/topic         #{:procurement :organisation}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Chapter 12 -- Department of Transportation"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12"
+     :statute/verified-label "Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The Transportation Acquisition Regulation (TAR). DOT, unlike some
+      independent commissions, does publish a FAR supplement. Its existence is
+      what makes this leaf's premise plausible -- and 1201.104 is what makes it
+      incomplete."}
+
+    {:statute/id            :tar/far-system
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1201 -- Federal Acquisition Regulations System"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1201"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1201"
+     :statute/verified-label "Federal Acquisition Regulations System"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The TAR's own part 1 analogue: purpose, authority, applicability,
+      deviations. NOTE the number. DOT also has a part 1201 in title 2 (grants)
+      whose subject is entirely different. `DOT part 1201` is ambiguous inside
+      one department; only the title disambiguates it."}
+
+    {:statute/id            :tar/purpose-subpart
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Subpart 1201.1 -- Purpose, Authority, Issuance"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1201"] ["subpart" "1201.1"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1201/subpart-1201.1"
+     :statute/verified-label "Purpose, Authority, Issuance"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Carries both sections this catalog quotes: 1201.101 (what the TAR is)
+      and 1201.104 (who it does and does not reach)."}
+
+    {:statute/id            :tar/purpose
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR 1201.101 -- Purpose"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1201"] ["subpart" "1201.1"] ["section" "1201.101"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1201/subpart-1201.1/section-1201.101"
+     :statute/verified-label "Purpose."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "1201"
+     :statute/quote-section "1201.101"
+     :statute/verified-quotes
+     ["establishes uniform acquisition policies and procedures that implement and supplement the Federal Acquisition Regulation (FAR)"
+      "The Transportation Acquisition Manual (TAM) contains internal operating procedures"]
+     :statute/note
+     "The TAR implements AND supplements the FAR -- it does not replace it.
+      A firm that reads only the TAR has read the delta, not the rules. Note
+      also the TAM: a third layer of internal procedure that is not in the CFR
+      at all, so no amount of CFR reading surfaces it."}
+
+    {:statute/id            :tar/applicability
+     :statute/topic         #{:procurement :scope}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR 1201.104 -- Applicability"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1201"] ["subpart" "1201.1"] ["section" "1201.104"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1201/subpart-1201.1/section-1201.104"
+     :statute/verified-label "Applicability."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "1201"
+     :statute/quote-section "1201.104"
+     :statute/verified-quotes
+     ["The FAR, TAR, and TAM do not apply to the Federal Aviation Administration as provided by 49 U.S.C. 40110(d)."
+      "The Maritime Administration may depart from the requirements of the FAR and TAR as authorized by 40 U.S.C. 113(e)(15)"]
+     :statute/note
+     "THE section in this catalog. In the regulation's own words, the FAR,
+      the TAR and the TAM do not reach the FAA at all, and the Maritime
+      Administration may depart from the first two. The FAA runs its own
+      Acquisition Management System under 49 U.S.C. 40110(d), which is not
+      published in the CFR -- so for DOT's largest acquisition shop there is no
+      CFR text to read, and a compliance service that teaches the TAR has
+      taught the wrong regime for it."}
+
+    {:statute/id            :tar/deviations
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Subpart 1201.470 -- Deviations From the FAR and TAR"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1201"] ["subpart" "1201.470"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1201/subpart-1201.470"
+     :statute/verified-label "Deviations From the FAR and TAR"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "How DOT authorises departures from its own supplement. Worth citing
+      because it shows the deviation path is internal and documented, which is
+      the ordinary case -- distinct from the FAA, which is not deviating from
+      the FAR but is outside it."}
+
+    {:statute/id            :tar/definitions
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1202 -- Definitions of Words and Terms"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1202"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1202"
+     :statute/verified-label "Definitions of Words and Terms"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Defines `Operating Administration` and `Head of the Operating
+      Administration`, the terms 1201.104(e) turns on. DOT is a federation of
+      operating administrations, and most TAR authority is exercised at that
+      level rather than departmentally."}
+
+    {:statute/id            :tar/contractor-qualifications
+     :statute/topic         #{:procurement :exclusion}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1209 -- Contractor Qualifications"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "B"] ["part" "1209"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-B/part-1209"
+     :statute/verified-label "Contractor Qualifications"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "DOT's supplement to FAR part 9. This is the procurement-side
+      responsibility and exclusion machinery, and it is the part a firm
+      actually needs when selling TO DOT -- as opposed to everything in the
+      grantor hat, which applies when DOT's money reaches it through someone
+      else."}
+
+    {:statute/id            :tar/small-business
+     :statute/topic         #{:procurement :socioeconomic}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1219 -- Small Business Programs"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "D"] ["part" "1219"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-D/part-1219"
+     :statute/verified-label "Small Business Programs"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The procurement-side small-business programme. Distinct from the DBE
+      programme at 49 CFR part 26, which is a financial-assistance programme
+      with different eligibility, different certification and a different
+      regulator. Conflating them is the single most common error in this space."}
+
+    {:statute/id            :tar/transportation-part
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1247 -- Transportation"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "G"] ["part" "1247"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-G/part-1247"
+     :statute/verified-label "Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "DOT's supplement to FAR part 47 (transportation in supply contracts).
+      Cited to forestall a natural but wrong inference: this is about how DOT
+      contracts arrange shipping, not about DOT's transportation programmes."}
+
+    {:statute/id            :tar/clauses
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1252 -- Solicitation Provisions and Contract Clauses"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "H"] ["part" "1252"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-H/part-1252"
+     :statute/verified-label "Solicitation Provisions and C\nOntract Clauses"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The clause bank. NOTE the recorded label: eCFR returns it with a line
+      break inside the word `Contract`, so the byte-exact heading is
+      `Solicitation Provisions and C\\nOntract Clauses`. That is an upstream
+      typesetting artifact, not a transcription error here. It is pinned as
+      returned; if the Office of the Federal Register repairs it this gate goes
+      red and one string gets updated, which is the gate working."}
+
+    {:statute/id            :tar/forms
+     :statute/topic         #{:procurement}
+     :statute/hat           :acquirer
+     :statute/title         "48 CFR Part 1253 -- Forms"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "H"] ["part" "1253"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-H/part-1253"
+     :statute/verified-label "Forms"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "DOT-specific forms. Small, but it is the end of the TAR: parts
+      1254-1299 are reserved, so the supplement stops here."}
+
+    {:statute/id            :grants/uniform-requirements
+     :statute/topic         #{:grants}
+     :statute/hat           :grants-baseline
+     :statute/title         "2 CFR Part 200 -- Uniform Administrative Requirements, Cost Principles, and Audit Requirements for Federal Awards"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "II"] ["part" "200"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200"
+     :statute/verified-label "Uniform Administrative Requirements, Cost Principles, and Audit Requirements for Federal Awards"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "OMB's government-wide grants rule -- the grant-side counterpart of the
+      FAR. Included despite being government-wide because the contrast is the
+      point: an entity spending DOT money is under this, not under the FAR, and
+      the two impose different competition, cost and audit regimes."}
+
+    {:statute/id            :grants/sam-registration
+     :statute/topic         #{:grants :registration}
+     :statute/hat           :grants-baseline
+     :statute/title         "2 CFR Part 25 -- Unique Entity Identifier and System for Award Management"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "I"] ["part" "25"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-I/part-25"
+     :statute/verified-label "Unique Entity Identifier and System for Award Management"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "SAM registration and the Unique Entity ID. This is the `registration`
+      half of what this leaf's README promises, and it is government-wide: it
+      is not a DOT procedure and there is no DOT-specific registration to
+      learn. Note the collision -- 2 CFR part 25 is registration, 48 CFR part
+      25 is domestic preference."}
+
+    {:statute/id            :grants/nonprocurement-debarment
+     :statute/topic         #{:grants :exclusion}
+     :statute/hat           :grants-baseline
+     :statute/title         "2 CFR Part 180 -- OMB Guidelines to Agencies on Government-Wide Debarment and Suspension (Nonprocurement)"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "I"] ["part" "180"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-I/part-180"
+     :statute/verified-label "OMB Guidelines to Agencies on Government-Wide Debarment and Suspension (Nonprocurement)"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The financial-assistance exclusion regime, distinct from FAR subpart
+      9.4. DOT adopts it at 2 CFR part 1200."}
+
+    {:statute/id            :baba/buy-america-preference
+     :statute/topic         #{:domestic-preference :grants}
+     :statute/hat           :grants-baseline
+     :statute/title         "2 CFR Part 184 -- Buy America Preferences for Infrastructure Projects"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "I"] ["part" "184"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-I/part-184"
+     :statute/verified-label "Buy America Preferences for Infrastructure Projects"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "OMB's implementation of the Build America, Buy America Act. A THIRD
+      domestic-preference regime, distinct from both FAR part 25 and 49 CFR
+      part 661, added in 2021 and applying across all federal infrastructure
+      assistance. A DOT-funded project can be under 184 and 661 at once."}
+
+    {:statute/id            :baba/applying-the-preference
+     :statute/topic         #{:domestic-preference :grants}
+     :statute/hat           :grants-baseline
+     :statute/title         "2 CFR 184.4 -- Applying the Buy America Preference to a Federal award"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "I"] ["part" "184"] ["section" "184.4"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-I/part-184/section-184.4"
+     :statute/verified-label "Applying the Buy America Preference to a Federal award."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "184"
+     :statute/quote-section "184.4"
+     :statute/verified-quotes
+     ["The Buy America Preference applies to Federal awards where funds are appropriated or otherwise made available for infrastructure projects in the United States, regardless of whether infrastructure is the primary purpose of the Federal award."
+      "The Buy America Preference must be included in all subawards, contracts, and purchase orders for the work performed, or products supplied under the Federal award."]
+     :statute/note
+     "Two things a reader gets wrong. First, the preference attaches to
+      infrastructure spending even when the award is not an infrastructure
+      award, so a grant nobody thinks of as a construction grant can carry it.
+      Second, it flows down to subawards, contracts and purchase orders -- so a
+      subcontractor several tiers from the government is bound by a term it
+      never negotiated."}
+
+    {:statute/id            :baba/exemptions
+     :statute/topic         #{:domestic-preference :grants}
+     :statute/hat           :grants-baseline
+     :statute/title         "2 CFR 184.8 -- Exemptions to the Buy America Preference"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "I"] ["part" "184"] ["section" "184.8"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-I/part-184/section-184.8"
+     :statute/verified-label "Exemptions to the Buy America Preference."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Where the preference stops. Cited because the waiver and exemption
+      routes differ between the three domestic-preference regimes, and an
+      exemption under one is not an exemption under another."}
+
+    {:statute/id            :dot/grants-chapter
+     :statute/topic         #{:grants :organisation}
+     :statute/hat           :grantor
+     :statute/title         "2 CFR Chapter XII -- Department of Transportation"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "XII"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-B/chapter-XII"
+     :statute/verified-label "Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "DOT's grants chapter -- the counterpart of 48 CFR chapter 12 on the
+      other side of the money flow. A department that both buys and funds has
+      two supplements in two titles, and they answer different questions."}
+
+    {:statute/id            :dot/nonprocurement-debarment
+     :statute/topic         #{:grants :exclusion}
+     :statute/hat           :grantor
+     :statute/title         "2 CFR Part 1200 -- Nonprocurement Suspension and Debarment"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "XII"] ["part" "1200"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-B/chapter-XII/part-1200"
+     :statute/verified-label "Nonprocurement Suspension and Debarment"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "DOT's adoption of 2 CFR part 180. An entity excluded here is excluded
+      from DOT assistance; exclusion from DOT contracts runs through FAR
+      subpart 9.4 instead."}
+
+    {:statute/id            :dot/uniform-requirements
+     :statute/topic         #{:grants}
+     :statute/hat           :grantor
+     :statute/title         "2 CFR Part 1201 -- Uniform Administrative Requirements, Cost Principles, and Audit Requirements for Federal Awards"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "XII"] ["part" "1201"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-B/chapter-XII/part-1201"
+     :statute/verified-label "Uniform Administrative Requirements, Cost Principles, and Audit Requirements for Federal Awards"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "DOT's adoption of 2 CFR part 200. THE COLLISION: this is 2 CFR 1201,
+      and 48 CFR 1201 is the TAR's Federal Acquisition Regulations System part.
+      Same department, same part number, opposite sides of the money flow. A
+      citation to `DOT 1201` without its title is not a citation."}
+
+    {:statute/id            :dot/ost
+     :statute/topic         #{:organisation}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Subtitle A -- Office of the Secretary of Transportation"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A"
+     :statute/verified-label "Office of the Secretary of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Departmental rules that bind every operating administration and, more
+      importantly here, every recipient of DOT financial assistance regardless
+      of which administration awarded it. This is where the cross-cutting
+      grant conditions live."}
+
+    {:statute/id            :dot/organization
+     :statute/topic         #{:organisation}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Part 1 -- Organization and Delegation of Powers and Duties"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "1"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-1"
+     :statute/verified-label "Organization and Delegation of Powers and Duties"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Who inside DOT may do what. The reason to read it is that authority is
+      delegated to operating administrations, so the answer to `who decides` is
+      almost never `the Department`."}
+
+    {:statute/id            :dot/faa-delegation
+     :statute/topic         #{:organisation}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR 1.82 -- The Federal Aviation Administration"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "1"] ["subpart" "D"] ["section" "1.82"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-1/subpart-D/section-1.82"
+     :statute/verified-label "The Federal Aviation Administration."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The FAA's delegation section, and one of only two places the FAA
+      appears in title 49 at all. It is cited here to make a structural point:
+      the FAA is unmistakably a DOT operating administration, and yet its
+      operating rules are in title 14 and its acquisition regime is in no CFR
+      title. Organisational membership predicts almost nothing about where its
+      rules live."}
+
+    {:statute/id            :dot/airport-concessions-dbe
+     :statute/topic         #{:socioeconomic :grants}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Part 23 -- Participation of Disadvantaged Business Enterprise in Airport Concessions"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "23"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-23"
+     :statute/verified-label "Participation of Disadvantaged Business Enterprise in Airport Concessions"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The ACDBE programme. Distinct from part 26 despite the near-identical
+      name: concessions are revenue-generating leases at airports, not
+      DOT-assisted contracts, and eligibility and goal-setting differ. A firm
+      certified under one is not thereby certified under the other."}
+
+    {:statute/id            :dot/uniform-relocation
+     :statute/topic         #{:grants :property}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Part 24 -- Uniform Relocation Assistance and Real Property Acquisition for Federal and Federally Assisted Programs"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "24"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-24"
+     :statute/verified-label "Uniform Relocation Assistance and Real Property Acquisition for Federal and Federally Assisted Programs"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The URA. Government-wide in effect but published by DOT, which is why
+      it sits in title 49 rather than title 2. Any federally assisted project
+      that takes property triggers it, so it reaches far outside transportation."}
+
+    {:statute/id            :dot/dbe
+     :statute/topic         #{:socioeconomic :grants}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Part 26 -- Participation by Disadvantaged Business Enterprises in Department of Transportation Financial Assistance Programs"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "26"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-26"
+     :statute/verified-label "Participation by Disadvantaged Business Enterprises in Department of Transportation Financial Assistance Programs"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The DBE programme, and the single most commercially significant part
+      in this catalog for a small firm. Note the title: FINANCIAL ASSISTANCE
+      programmes. It does not apply to DOT's own procurements, which run the
+      FAR/TAR small-business programmes instead."}
+
+    {:statute/id            :dot/dbe-objectives
+     :statute/topic         #{:socioeconomic :grants}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR 26.1 -- What are the objectives of this part?"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "26"] ["subpart" "A"] ["section" "26.1"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-26/subpart-A/section-26.1"
+     :statute/verified-label "What are the objectives of this part?"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "26"
+     :statute/quote-section "26.1"
+     :statute/verified-quotes
+     ["To promote the use of DBEs in all types of federally assisted contracts and procurement activities conducted by recipients."
+      "in the Department's highway, transit, and airport financial assistance programs"]
+     :statute/note
+     "In the regulation's own words the actor is the RECIPIENT, and the
+      scope is highway, transit and airport assistance. Both halves matter: the
+      procurement being regulated is somebody else's, and a DOT programme
+      outside those three modes may carry no DBE obligation at all."}
+
+    {:statute/id            :dot/reciprocity-denial
+     :statute/topic         #{:procurement :trade}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Part 30 -- Denial of Public Works Contracts to Suppliers of Goods and Services of Countries That Deny Procurement Market Access to U.S. Contractors"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "30"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-30"
+     :statute/verified-label "Denial of Public Works Contracts to Suppliers of Goods and Services of Countries That Deny Procurement Market Access to U.S. Contractors"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "A fourth trade-related regime, and one almost nobody has heard of: a
+      reciprocity bar keyed to whether the supplier's country opens its own
+      procurement market. It is not a domestic-content rule, so clearing Buy
+      America says nothing about it."}
+
+    {:statute/id            :dot/reserved-common-rule
+     :statute/topic         #{:grants}
+     :statute/hat           :grantor
+     :statute/title         "49 CFR Parts 18-19 [Reserved]"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "A"] ["part" "18-19"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-A/part-18-19"
+     :statute/verified-label "Parts 18-19 [Reserved]"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The old DOT grants common rule, now empty. Cited deliberately as a
+      POSITIVE rather than an absence: eCFR carries an explicit reserved
+      placeholder, and reserved is not the same state as absent. Note also that
+      eCFR represents the pair as a single node identified `18-19`, so a walk
+      that asks for part `18` finds nothing -- a citation to `49 CFR part 18`
+      is unresolvable today for two independent reasons. The live rules are
+      2 CFR part 200 as adopted at 2 CFR part 1201."}
+
+    {:statute/id            :fta/chapter
+     :statute/topic         #{:transit :organisation}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Chapter VI -- Federal Transit Administration, Department of Transportation"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI"
+     :statute/verified-label "Federal Transit Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "FTA's chapter. The transit half of the README's promise."}
+
+    {:statute/id            :fta/buy-america
+     :statute/topic         #{:domestic-preference :transit}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Part 661 -- Buy America Requirements"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"] ["part" "661"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI/part-661"
+     :statute/verified-label "Buy America Requirements"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "FTA's Buy America rule. NOTE THE NUMBER: 23 CFR part 661 is the Tribal
+      Transportation Facility Bridge Program, an unrelated FHWA programme. Two
+      part 661s inside one department; only the title tells them apart."}
+
+    {:statute/id            :fta/buy-america-applicability
+     :statute/topic         #{:domestic-preference :transit}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR 661.1 -- Applicability"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"] ["part" "661"] ["section" "661.1"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI/part-661/section-661.1"
+     :statute/verified-label "Applicability."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "661"
+     :statute/quote-section "661.1"
+     :statute/verified-quotes
+     ["this part applies to all federally assisted procurements using funds authorized by 49 U.S.C. 5323(j)"]
+     :statute/note
+     "FEDERALLY ASSISTED procurements -- the buyer is the grantee, not the
+      United States. This one phrase separates Buy America from Buy American
+      more cleanly than any commentary: they regulate different purchasers."}
+
+    {:statute/id            :fta/buy-america-general
+     :statute/topic         #{:domestic-preference :transit}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR 661.5 -- General requirements"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"] ["part" "661"] ["section" "661.5"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI/part-661/section-661.5"
+     :statute/verified-label "General requirements."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "661"
+     :statute/quote-section "661.5"
+     :statute/verified-quotes
+     ["no funds may be obligated by FTA for a grantee project unless all iron, steel, and manufactured products used in the project are produced in the United States"
+      "All of the components of the product must be of U.S. origin."]
+     :statute/note
+     "An absolute rule with no price test: ALL iron, steel and manufactured
+      products, and for manufactured products ALL components of U.S. origin.
+      Compare FAR subpart 25.1, where a foreign offer wins if the price gap is
+      large enough, and 23 CFR 635.410, where FHWA allows both a de minimis and
+      a 25 percent alternate-bid path. Three DOT-adjacent domestic-content
+      rules, three different mechanisms."}
+
+    {:statute/id            :fta/state-buy-america
+     :statute/topic         #{:domestic-preference :transit :preemption}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR 661.21 -- State Buy America provisions"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"] ["part" "661"] ["section" "661.21"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI/part-661/section-661.21"
+     :statute/verified-label "State Buy America provisions."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "661"
+     :statute/quote-section "661.21"
+     :statute/verified-quotes
+     ["any State may impose more stringent Buy America or buy national requirements than contained in section 165 of the Act and the regulations in this part"
+      "(3) State and local Buy Local preference provisions."]
+     :statute/note
+     "The federal rule is a floor, not a ceiling: a State may be stricter,
+      and then the State's rule is what binds. But FTA will not participate in
+      contracts governed by Buy LOCAL preferences at all. So `stricter is fine`
+      and `local is fine` are opposite answers, and a bid document that mixes
+      them is not merely over-compliant -- it is unfundable."}
+
+    {:statute/id            :fta/rolling-stock-audits
+     :statute/topic         #{:transit :audit}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Part 663 -- Pre-Award and Post-Delivery Audits of Rolling Stock Purchases"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"] ["part" "663"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI/part-663"
+     :statute/verified-label "Pre-Award and Post-Delivery Audits of Rolling Stock Purchases"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Carries its own Buy America certifications (663.13, 663.25) on top of
+      part 661. A grantee that satisfied 661 and stopped has not finished."}
+
+    {:statute/id            :fta/bus-testing
+     :statute/topic         #{:transit}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Part 665 -- Bus Testing"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VI"] ["part" "665"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VI/part-665"
+     :statute/verified-label "Bus Testing"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "A model must pass testing before FTA funds may buy it. A procurement
+      condition that lives nowhere near procurement law, and a standing trap
+      for a compliance adviser reasoning only from the FAR/TAR."}
+
+    {:statute/id            :fhwa/chapter
+     :statute/topic         #{:highway :organisation}
+     :statute/hat           :regulator
+     :statute/title         "23 CFR Chapter I -- Federal Highway Administration, Department of Transportation"
+     :statute/cfr-title     23
+     :statute/cfr-node      [["chapter" "I"]]
+     :statute/url           "https://www.ecfr.gov/current/title-23/chapter-I"
+     :statute/verified-label "Federal Highway Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-23.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "FHWA's chapter, in its own title. The highway half of the README's
+      promise is not in title 49 at all."}
+
+    {:statute/id            :fhwa/construction
+     :statute/topic         #{:highway}
+     :statute/hat           :regulator
+     :statute/title         "23 CFR Part 635 -- Construction and Maintenance"
+     :statute/cfr-title     23
+     :statute/cfr-node      [["chapter" "I"] ["subchapter" "G"] ["part" "635"]]
+     :statute/url           "https://www.ecfr.gov/current/title-23/chapter-I/subchapter-G/part-635"
+     :statute/verified-label "Construction and Maintenance"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-23.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Where FHWA's contracting requirements for Federal-aid projects live --
+      including Buy America. The State DOT lets the contract; FHWA conditions
+      the money."}
+
+    {:statute/id            :fhwa/buy-america
+     :statute/topic         #{:domestic-preference :highway}
+     :statute/hat           :regulator
+     :statute/title         "23 CFR 635.410 -- Buy America requirements"
+     :statute/cfr-title     23
+     :statute/cfr-node      [["chapter" "I"] ["subchapter" "G"] ["part" "635"] ["subpart" "D"] ["section" "635.410"]]
+     :statute/url           "https://www.ecfr.gov/current/title-23/chapter-I/subchapter-G/part-635/subpart-D/section-635.410"
+     :statute/verified-label "Buy America requirements."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-23.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/quote-part    "635"
+     :statute/quote-section "635.410"
+     :statute/verified-quotes
+     ["unless such total bid exceeds the lowest total bid based on furnishing foreign iron or steel products by more than 25 percent"
+      "if the cost of such materials used does not exceed one-tenth of one percent (0.1 percent) of the total contract cost or $2,500, whichever is greater"]
+     :statute/note
+     "FHWA's Buy America, and the proof that `DOT Buy America` is not one
+      rule. FHWA admits a de minimis (0.1 percent or $2,500, whichever is
+      greater) and a 25 percent alternate-bid path; FTA's 661.5 admits neither.
+      A compliance adviser who learned transit rules and applies them to a
+      highway project will over-restrict; the reverse under-restricts."}
+
+    {:statute/id            :fhwa/design-build
+     :statute/topic         #{:highway :procurement}
+     :statute/hat           :regulator
+     :statute/title         "23 CFR Part 636 -- Design-Build Contracting"
+     :statute/cfr-title     23
+     :statute/cfr-node      [["chapter" "I"] ["subchapter" "G"] ["part" "636"]]
+     :statute/url           "https://www.ecfr.gov/current/title-23/chapter-I/subchapter-G/part-636"
+     :statute/verified-label "Design-Build Contracting"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-23.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Federal conditions on how a State DOT may run a design-build
+      procurement. Again the contract is the State's, and the rules are
+      federal -- the recurring shape of everything in the regulator hat."}
+
+    {:statute/id            :fhwa/tribal-bridge
+     :statute/topic         #{:highway}
+     :statute/hat           :regulator
+     :statute/title         "23 CFR Part 661 -- Tribal Transportation Facility Bridge Program (TTFBP)"
+     :statute/cfr-title     23
+     :statute/cfr-node      [["chapter" "I"] ["subchapter" "G"] ["part" "661"]]
+     :statute/url           "https://www.ecfr.gov/current/title-23/chapter-I/subchapter-G/part-661"
+     :statute/verified-label "Tribal Transportation Facility Bridge Program (TTFBP)"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-23.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Cited for one reason: it is part 661, and it has nothing to do with
+      Buy America. Held next to 49 CFR part 661 it shows that a part number is
+      not an address inside this department."}
+
+    {:statute/id            :phmsa/chapter
+     :statute/topic         #{:pipeline :hazmat :organisation}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Chapter I -- Pipeline and Hazardous Materials Safety Administration, Department of Transportation"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "I"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-I"
+     :statute/verified-label "Pipeline and Hazardous Materials Safety Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "PHMSA. Named so the operating-administration inventory in this catalog
+      is complete rather than selective."}
+
+    {:statute/id            :fra/chapter
+     :statute/topic         #{:rail :organisation}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Chapter II -- Federal Railroad Administration, Department of Transportation"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "II"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-II"
+     :statute/verified-label "Federal Railroad Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "FRA. Note that passenger rail operations are Amtrak's chapter VII, a
+      corporation rather than an administration."}
+
+    {:statute/id            :fmcsa/chapter
+     :statute/topic         #{:motor-carrier :organisation}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Chapter III -- Federal Motor Carrier Safety Administration, Department of Transportation"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "III"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III"
+     :statute/verified-label "Federal Motor Carrier Safety Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "FMCSA."}
+
+    {:statute/id            :nhtsa/chapter
+     :statute/topic         #{:vehicle-safety :organisation}
+     :statute/hat           :regulator
+     :statute/title         "49 CFR Chapter V -- National Highway Traffic Safety Administration, Department of Transportation"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "V"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-V"
+     :statute/verified-label "National Highway Traffic Safety Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "NHTSA in title 49. It ALSO has chapters in title 23 (chapters II and
+      III, the latter shared with FHWA), so a single administration's rules are
+      split across two titles."}
+
+    {:statute/id            :marad/chapter
+     :statute/topic         #{:maritime :organisation}
+     :statute/hat           :regulator
+     :statute/title         "46 CFR Chapter II -- Maritime Administration, Department of Transportation"
+     :statute/cfr-title     46
+     :statute/cfr-node      [["chapter" "II"]]
+     :statute/url           "https://www.ecfr.gov/current/title-46/chapter-II"
+     :statute/verified-label "Maritime Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-46.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "MARAD, in yet another title. It is the operating administration that
+      1201.104(c) permits to depart from the FAR and TAR, so its rules are the
+      referent of that carve-out."}
+
+    {:statute/id            :faa/chapter
+     :statute/topic         #{:aviation :organisation}
+     :statute/hat           :excluded
+     :statute/title         "14 CFR Chapter I -- Federal Aviation Administration, Department of Transportation"
+     :statute/cfr-title     14
+     :statute/cfr-node      [["chapter" "I"]]
+     :statute/url           "https://www.ecfr.gov/current/title-14/chapter-I"
+     :statute/verified-label "Federal Aviation Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-14.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "The FAA's own chapter, in title 14. Its label says `Department of
+      Transportation` -- membership is not in doubt. What is absent is any
+      acquisition regulation: 1201.104(d) removes it from the FAR and TAR, and
+      the FAA's Acquisition Management System is not CFR text at all."}
+
+    {:statute/id            :faa/commercial-space
+     :statute/topic         #{:aviation :space}
+     :statute/hat           :excluded
+     :statute/title         "14 CFR Chapter III -- Commercial Space Transportation, Federal Aviation Administration, Department of Transportation"
+     :statute/cfr-title     14
+     :statute/cfr-node      [["chapter" "III"]]
+     :statute/url           "https://www.ecfr.gov/current/title-14/chapter-III"
+     :statute/verified-label "Commercial Space Transportation, Federal Aviation Administration, Department of Transportation"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-14.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Commercial space licensing, also FAA and also DOT. Included because a
+      reader looking for `space` under a transportation department would not
+      think to look in Aeronautics and Space chapter III."}
+
+    {:statute/id            :ost/aviation-proceedings
+     :statute/topic         #{:aviation :organisation}
+     :statute/hat           :excluded
+     :statute/title         "14 CFR Chapter II -- Office of the Secretary, Department of Transportation (Aviation Proceedings)"
+     :statute/cfr-title     14
+     :statute/cfr-node      [["chapter" "II"]]
+     :statute/url           "https://www.ecfr.gov/current/title-14/chapter-II"
+     :statute/verified-label "Office of the Secretary, Department of Transportation (Aviation Proceedings)"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-14.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Economic aviation regulation -- licensing air carriers, consumer
+      protection -- retained by the Secretary rather than delegated to the FAA,
+      and sitting in title 14 rather than with the rest of OST in 49 subtitle
+      A. Two DOT components in one title, split by subject rather than by org."}
+
+    {:statute/id            :not-dot/coast-guard
+     :statute/topic         #{:organisation}
+     :statute/hat           :not-dot
+     :statute/title         "49 CFR Chapter IV -- Coast Guard, Department of Homeland Security"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "IV"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-IV"
+     :statute/verified-label "Coast Guard, Department of Homeland Security"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "In the Transportation title, owned by Homeland Security. The heading
+      says so itself, which is why this is a positive entry and not an
+      absence -- the evidence is the label."}
+
+    {:statute/id            :not-dot/tsa
+     :statute/topic         #{:organisation}
+     :statute/hat           :not-dot
+     :statute/title         "49 CFR Chapter XII -- Transportation Security Administration, Department of Homeland Security"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "XII"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-XII"
+     :statute/verified-label "Transportation Security Administration, Department of Homeland Security"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "TSA, also DHS. Note that this is 49 CFR chapter XII while DOT's grants
+      chapter is 2 CFR chapter XII -- the same numeral, different departments,
+      different titles."}
+
+    {:statute/id            :not-dot/amtrak
+     :statute/topic         #{:rail :organisation}
+     :statute/hat           :not-dot
+     :statute/title         "49 CFR Chapter VII -- National Railroad Passenger Corporation (Amtrak)"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VII"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VII"
+     :statute/verified-label "National Railroad Passenger Corporation (Amtrak)"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "A federally chartered corporation, not an agency. Neither the FAR nor
+      the TAR nor DOT's grant rules describe how it buys."}
+
+    {:statute/id            :not-dot/ntsb
+     :statute/topic         #{:organisation}
+     :statute/hat           :not-dot
+     :statute/title         "49 CFR Chapter VIII -- National Transportation Safety Board"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "VIII"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-VIII"
+     :statute/verified-label "National Transportation Safety Board"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "An independent investigative agency. Its label carries no department
+      at all -- it belongs to none."}
+
+    {:statute/id            :not-dot/stb
+     :statute/topic         #{:rail :organisation}
+     :statute/hat           :not-dot
+     :statute/title         "49 CFR Chapter X -- Surface Transportation Board"
+     :statute/cfr-title     49
+     :statute/cfr-node      [["subtitle" "B"] ["chapter" "X"]]
+     :statute/url           "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-X"
+     :statute/verified-label "Surface Transportation Board"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-49.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Independent economic regulator of freight rail, statutorily separated
+      from DOT. A rail client's economic regulator and its safety regulator are
+      different bodies in different chapters of the same title."}
+
+    {:statute/id            :not-dot/fmc
+     :statute/topic         #{:maritime :organisation}
+     :statute/hat           :not-dot
+     :statute/title         "46 CFR Chapter IV -- Federal Maritime Commission"
+     :statute/cfr-title     46
+     :statute/cfr-node      [["chapter" "IV"]]
+     :statute/url           "https://www.ecfr.gov/current/title-46/chapter-IV"
+     :statute/verified-label "Federal Maritime Commission"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-46.json"
+     :statute/verified-at   "2026-08-20"
+     :statute/note
+     "Title 46 repeats the pattern of title 49: MARAD is DOT, the Coast
+      Guard is DHS, and the Federal Maritime Commission is independent. A CFR
+      title is a subject, not an owner."}]})
+
+;; ---------------------------------------------------------------------------
+;; Absences.
+;;
+;; A negative's failure mode is that it passes for free: scan the wrong tree,
+;; or an empty one, and `nothing matched` looks exactly like `confirmed still
+;; absent`. Every label absence therefore carries a control pattern that MUST
+;; match in the same subtree, so silence becomes an explicit could-not-answer.
+
+(def absences
+  "Things a competent reader expects to find for this department, which are not
+  there -- each recorded so the live gate can confirm they are STILL not there."
+  [{:absence/id :dot/no-faa-acquisition-regulation
+    :absence/claim
+    "The Federal Aviation Administration is named nowhere in 48 CFR. Not as a
+     chapter, not as a subpart, not in a heading anywhere in the Federal
+     Acquisition Regulations System -- even though the FAA is a DOT operating
+     administration and DOT itself holds chapter 12. This is not an oversight:
+     48 CFR 1201.104(d) states that the FAR, TAR and TAM do not apply to the
+     FAA, per 49 U.S.C. 40110(d). The FAA acquires under its own Acquisition
+     Management System, which is not CFR text, so no amount of CFR reading
+     reaches it. A firm selling to the FAA that has learned the FAR and the TAR
+     has learned two regimes, neither of which governs its sale."
+    :absence/absent-label
+    {:statute/cfr-title 48
+     :statute/under     []
+     :statute/pattern   "(?i)federal aviation administration"}
+    :absence/control-label
+    {:statute/pattern "(?i)department of transportation"
+     :absence/control-note
+     "DOT is named in title 48 more than once, including its own chapter 12.
+      If this control stops matching, the scan is looking at the wrong tree or
+      at no tree, and the FAA absence above proves nothing."}
+    :absence/see-instead
+    {:statute/id            :tar/applicability-see-instead
+     :statute/title         "48 CFR 1201.104 -- Applicability"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "12"] ["subchapter" "A"] ["part" "1201"] ["subpart" "1201.1"] ["section" "1201.104"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-12/subchapter-A/part-1201/subpart-1201.1/section-1201.104"
+     :statute/verified-label "Applicability."
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"}}
+
+   {:absence/id :dot/no-buy-america-in-title-48
+    :absence/claim
+    "The phrase `Buy America`, as a whole word, appears in no node label in
+     48 CFR. `Buy American` appears dozens of times. The one-letter difference
+     is a jurisdictional boundary, not a typo: Buy American (48 CFR part 25)
+     governs the United States purchasing for itself and operates as a price
+     preference a foreign offer can overcome; Buy America (49 CFR part 661,
+     23 CFR 635.410, and the Build America, Buy America preference at 2 CFR
+     part 184) governs a grantee spending federal assistance and, in FTA's
+     case, admits no price comparison at all. A firm that searches the FAR for
+     its Buy America obligation finds Buy American, assumes it has found the
+     rule, and applies the wrong test to the wrong purchaser."
+    :absence/absent-label
+    {:statute/cfr-title 48
+     :statute/under     []
+     :statute/pattern   "(?i)buy america\\b"}
+    :absence/control-label
+    {:statute/pattern "(?i)buy american"
+     :absence/control-note
+     "`Buy American` matches many nodes in title 48, starting with subparts
+      25.1 and 25.2. If it stops matching, the scan is not reading title 48 and
+      the absence is vacuous. Note that this control is deliberately the string
+      the absent pattern is most likely to be confused with -- and the word
+      boundary is what separates them."}
+    :absence/see-instead
+    {:statute/id            :baba/preference-see-instead
+     :statute/title         "2 CFR Part 184 -- Buy America Preferences for Infrastructure Projects"
+     :statute/cfr-title     2
+     :statute/cfr-node      [["subtitle" "A"] ["chapter" "I"] ["part" "184"]]
+     :statute/url           "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-I/part-184"
+     :statute/verified-label "Buy America Preferences for Infrastructure Projects"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-2.json"
+     :statute/verified-at   "2026-08-20"}}
+
+   {:absence/id :dot/no-tar-part-1225
+    :absence/claim
+    "There is no part 1225 in 48 CFR chapter 12. DOT never supplemented FAR
+     part 25, the FAR's foreign-acquisition and domestic-preference part: the
+     TAR's numbering runs 1224 straight to 1227. For the department that
+     administers the best-known domestic-content requirements in American
+     infrastructure, that is the structural confirmation that none of them are
+     procurement rules. The domestic-preference apparatus lives entirely on the
+     grants side -- 49 CFR 661, 23 CFR 635.410, 2 CFR 184 -- where the buyer is
+     a State DOT or a transit agency and DOT is only the source of the money.
+     Checked as a structural negative rather than asserted, because `we did not
+     supplement it` and `we supplemented it somewhere else in the title` look
+     identical from a reading of the parts we do have."
+    :absence/absent-part
+    {:statute/cfr-title 48
+     :statute/under     [["chapter" "12"]]
+     :statute/part      "1225"}
+    :absence/see-instead
+    {:statute/id            :far/foreign-acquisition-see-instead
+     :statute/title         "48 CFR Part 25 -- Foreign Acquisition"
+     :statute/cfr-title     48
+     :statute/cfr-node      [["chapter" "1"] ["subchapter" "D"] ["part" "25"]]
+     :statute/url           "https://www.ecfr.gov/current/title-48/chapter-1/subchapter-D/part-25"
+     :statute/verified-label "Foreign Acquisition"
+     :statute/verified-via  "https://www.ecfr.gov/api/versioner/v1/structure/2026-08-18/title-48.json"
+     :statute/verified-at   "2026-08-20"}}])
+
+;; ---------------------------------------------------------------------------
+;; Derived views. Plain functions over the data above -- no state, no I/O.
+
+(defn entries
+  "Every catalog entry for `iso` (default the only key this leaf carries)."
+  ([] (entries "USA-DOT"))
+  ([iso] (get catalog iso [])))
+
+(defn by-hat
+  "Entries wearing `hat`. The hats are the organising claim of this catalog, so
+  this is the intended way in."
+  [hat]
+  (filterv #(= hat (:statute/hat %)) (entries)))
+
+(defn by-topic
+  "Entries carrying `topic` in their `:statute/topic` set."
+  [topic]
+  (filterv #(contains? (:statute/topic %) topic) (entries)))
+
+(defn by-cfr-title
+  "Entries citing CFR title `t`. DOT's rules are spread over six titles, so
+  this is the view that makes the spread visible."
+  [t]
+  (filterv #(= t (:statute/cfr-title %)) (entries)))
+
+(defn find-entry
+  "The entry with `:statute/id` = `id`, or nil."
+  [id]
+  (first (filterv #(= id (:statute/id %)) (entries))))
+
+(defn quoted-entries
+  "Entries that pin byte-exact spans of section text, not merely a heading."
+  []
+  (filterv :statute/verified-quotes (entries)))
+
+(defn quote-count
+  "Total number of pinned section-text spans across the catalog. Larger than
+  `(count (quoted-entries))` because one section can carry several claims."
+  []
+  (reduce + (map #(count (:statute/verified-quotes %)) (quoted-entries))))
+
+(defn citation-urls
+  "Every distinct human-facing citation URL in the catalog, sorted."
+  []
+  (vec (sort (distinct (keep :statute/url (entries))))))
+
+(defn full-text-url
+  "eCFR versioner full-text endpoint for an entry carrying quotes, or nil if
+  the entry pins none or its title has no declared endpoint."
+  [{:statute/keys [cfr-title quote-part quote-section]}]
+  (when-let [base (and quote-part quote-section (get ecfr-full-text-api cfr-title))]
+    (str base "?part=" quote-part "&section=" quote-section)))
+
+(defn summary
+  "One line per entry: id, hat, title. For an operator skimming the catalog."
+  []
+  (str/join "\n"
+            (for [e (entries)]
+              (str (:statute/id e) "\t" (:statute/hat e) "\t" (:statute/title e)))))
