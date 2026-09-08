@@ -108,7 +108,7 @@
   transfer between them. That first question -- which side of the money is this
   -- is the highest-value thing in this catalog, and it is why the FAR and OMB
   entries are here at all."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 ;; ---------------------------------------------------------------------------
 ;; Verification endpoints.
