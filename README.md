@@ -9,18 +9,18 @@ composing with the country coordinator `cloud-itonami-iso3166-usa`.
 
 ## The catalog
 
-`src/statute/facts.cljc` holds **61 verified regulatory anchors** across
+`src/statute/facts.cljk` holds **61 verified regulatory anchors** across
 **6 CFR titles**, plus **3 checked negatives** — things a competent reader
 expects to find and which are not there. **15 quoted spans** of live section
 text are pinned byte-exactly, so the notes are falsifiable and not just the
 citations.
 
 Every anchor's heading was confirmed against the official eCFR versioner API,
-and `tools/verify_citations.cljs` re-fetches all of it and fails if anything
+and `tools/verify_citations.cljk` re-fetches all of it and fails if anything
 drifted:
 
 ```bash
-nbb tools/verify_citations.cljs     # exit 0 verified / 1 drifted / 2 could-not-answer
+nbb tools/verify_citations.cljk     # exit 0 verified / 1 drifted / 2 could-not-answer
 clojure -M:test                     # offline shape invariants
 ```
 
