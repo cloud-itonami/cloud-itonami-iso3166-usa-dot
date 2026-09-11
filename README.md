@@ -20,8 +20,8 @@ and `tools/verify_citations.cljk` re-fetches all of it and fails if anything
 drifted:
 
 ```bash
-nbb tools/verify_citations.cljk     # exit 0 verified / 1 drifted / 2 could-not-answer
-clojure -M:test                     # offline shape invariants
+kbb --backend sci tools/verify_citations.cljk     # exit 0 verified / 1 drifted / 2 could-not-answer
+kbb -M:test                     # offline shape invariants
 ```
 
 The live gate refuses to report a pass it did not earn: a network failure, an
